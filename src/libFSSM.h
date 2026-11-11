@@ -57,6 +57,13 @@ public:
 	 */
 	static char calcchecksum(const char *message, unsigned int nrofbytes);
 
+	/*!
+	 * \brief Get the directory containing the application data files (definitions, translations, documentation, ...).
+	 *
+	 * \return the directory of the executable or, if the application is a macOS app bundle, the bundle's resources directory
+	 */
+	static QString dataDirPath();
+
 private:
 	static bool raw2scaledByCalculation(unsigned int rawValue, QString scaleformula, double *scaledValue);
 	static bool raw2scaledByDirectAssociation(unsigned int rawValue, QString scaleformula, QString *scaledValueStr);

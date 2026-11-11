@@ -25,7 +25,7 @@
 #include "AbstractDiagInterface.h"
 #ifdef __WIN32__
 	#include "windows\J2534_API.h"
-#elif defined __linux__
+#elif defined __linux__ || defined __APPLE__
 	#include "linux/J2534_API.h"
 #else
 	#error "Operating system not supported !"

@@ -19,6 +19,9 @@
 
 #include "J2534_API.h"
 #include "tinyxml2/tinyxml2.h"
+#ifdef __APPLE__
+	#include "libFSSM.h"
+#endif
 
 
 
@@ -159,8 +162,13 @@ void J2534_API::assignJ2534fcns()
 
 std::vector<J2534Library> J2534_API::getAvailableJ2534Libs()
 {
+#ifdef __APPLE__
+	// NOTE: the working directory of apps started via Finder is "/"
+	const std::string libsDefXmlFile = libFSSM::dataDirPath().toStdString() + "/definitions/J2534libs.xml";
+#else
 	// HACK
 	const std::string libsDefXmlFile = "./definitions/J2534libs.xml";
+#endif
 
 	const std::vector<J2534Library> PTlibraries = parseJ2534LibsXml(libsDefXmlFile);
 

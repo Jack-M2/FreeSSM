@@ -53,9 +53,10 @@ www.sourceforge.net/projects/tinyxml for further informations.
 
    - Linux/X11
    - Windows (XP and older are untested/unmaintained !)
+   - macOS (Intel and Apple Silicon; Qt5 or Qt6 required)
 
-With minor modifications, it should be possible to build FreeSSM on MacOS X
-and other Unix systems, too, but there is currently no offical support.
+With minor modifications, it should be possible to build FreeSSM on other Unix
+systems, too, but there is currently no offical support.
 
 --------------------------------------------------------------------------------
 
@@ -83,6 +84,11 @@ and other Unix systems, too, but there is currently no offical support.
                       "qttools5-dev-tools".
                       On openSUSE, the package for Qt5 is called "libqt5-linguist" while
                       for Qt6 the package is called "qt6-tools-linguist".
+               macOS: The Xcode Command Line Tools are required
+                      ($ xcode-select --install).
+                      The easiest way to get Qt is Homebrew (https://brew.sh):
+                      $ brew install qt
+                      The Qt installer from www.qt.io works as well.
         2.3.) General notes:
                The sources of Qt are not required.
                There is also no need to install tools such as Qt Creator etc.
@@ -144,6 +150,10 @@ $ make debug
 Translation files:
 $ make translation
 
+NOTE (macOS only): 'make release' creates the app bundle FreeSSM.app, which
+                   already contains all data files and translations.
+                   'make translation' is not needed.
+
 NOTE (Windows only): depending on the used Qt-version and system configuration,
                      'mingw32-make' must be called instead of 'make'.
 
@@ -154,6 +164,7 @@ NOTE (Windows only): depending on the used Qt-version and system configuration,
 By default, the the application will be installed to
 	Linux:        the users home-directory (/home/userXYZ/FreeSSM)
 	Windows:      C:\FreeSSM
+	macOS:        /Applications (as FreeSSM.app)
 If you want to install to a custom directory, call qmake first with
 "INSTALLDIR=CUSTOM_DIR" appended, e.g.:
 $ qmake "INSTALLDIR=D:\somedir\FreeSSM_TEST"
@@ -183,6 +194,16 @@ $ ./FreeSSM
 
 Windows:
 $ freessm
+
+macOS:
+$ open FreeSSM.app --args <options>
+or
+$ ./FreeSSM.app/Contents/MacOS/FreeSSM <options>
+FreeSSM.app can also be started from the Finder.
+NOTE: The app bundle uses the Qt libraries of the build system. To run it on a
+      Mac without Qt, the Qt libraries have to be copied into the bundle first:
+      $ macdeployqt FreeSSM.app
+NOTE: Serial port names have the form /dev/cu.*, e.g. /dev/cu.usbserial-A1B2C3D4
 
 You can append additional command line options if useful.
 To get a full list of supported options and corresponding descriptions, start

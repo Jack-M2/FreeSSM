@@ -31,7 +31,7 @@ FreeSSM::FreeSSM(QApplication *app)
 	_language = "en";	// default language
 	_preferSSM2protocolVariantISO14230 = false;
 	_dumping = false;
-	QString appsPath( QCoreApplication::applicationDirPath() );
+	QString appsPath( libFSSM::dataDirPath() );
 	// SETUP GUI:
 	setupUi(this);
 	setWindowFlags( windowFlags() & ~Qt::WindowMaximizeButtonHint );	// only necessary for MS Windows
@@ -157,7 +157,7 @@ FreeSSM::FreeSSM(QApplication *app)
 	{
 		QString qt_ts_path = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 		if (qt_ts_path.isEmpty())
-			qt_ts_path = QCoreApplication::applicationDirPath();
+			qt_ts_path = libFSSM::dataDirPath();
 		_qt_translator = new QTranslator;
 		if (_qt_translator->load("qt_" + _language, qt_ts_path))
 			app->installTranslator(_qt_translator);
@@ -397,9 +397,9 @@ void FreeSSM::preferences()
 
 void FreeSSM::help()
 {
-	QString helpurlstr( QCoreApplication::applicationDirPath() );
-	helpurlstr += "/doc/help_" + _language + ".html";
-	QDesktopServices::openUrl( QUrl(helpurlstr) );
+	QString helpfilestr( libFSSM::dataDirPath() );
+	helpfilestr += "/doc/help_" + _language + ".html";
+	QDesktopServices::openUrl( QUrl::fromLocalFile(helpfilestr) );
 }
 
 
@@ -478,7 +478,7 @@ void FreeSSM::retranslate(QString newlanguage, QTranslator *newtranslator)
 	{
 		QString qt_ts_path = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 		if (qt_ts_path.isEmpty())
-			qt_ts_path = QCoreApplication::applicationDirPath();
+			qt_ts_path = libFSSM::dataDirPath();
 		_qt_translator = new QTranslator;
 		if (_qt_translator->load("qt_" + newlanguage, qt_ts_path))
 			QApplication::installTranslator(_qt_translator);

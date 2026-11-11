@@ -175,7 +175,7 @@ CONFIG(debug, debug|release): DEFINES += __FSSM_DEBUG__ __SERIALCOM_DEBUG__ __J2
 greaterThan(QT_MAJOR_VERSION, 4): DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x040000	# only needed for method QHeaderView::setResizeMode()
 
 # disable gcse-optimization (regressions with gcc-versions >= 4.2)
-QMAKE_CXXFLAGS += -fno-gcse          # disable gcse-optimization (regressions with gcc-versions >= 4.2)
+!macx: QMAKE_CXXFLAGS += -fno-gcse   # disable gcse-optimization (regressions with gcc-versions >= 4.2); not supported by clang (macOS)
 # language standard; requires c++11: range-for loop, constexpr, auto, initializer list, lambda expression, std::array, ...; Qt6.2+ requires c++17
 greaterThan(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 1) {
   QMAKE_CXXFLAGS += -std=c++17
@@ -185,7 +185,8 @@ greaterThan(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 1) {
 
 # Installation
 isEmpty(INSTALLDIR) {
-    unix:INSTALLDIR = $$system(echo ~)/FreeSSM
+    unix:!macx:INSTALLDIR = $$system(echo ~)/FreeSSM
+    macx:INSTALLDIR = /Applications
     win32:INSTALLDIR = $$system(echo %homedrive%)/FreeSSM
 }
 target.path = $$INSTALLDIR
@@ -251,14 +252,18 @@ win32 {
 unix {
     defstarget.files += definitions/J2534libs.xml
 }
-INSTALLS += target doctarget defstarget filestarget translation
+macx {
+    INSTALLS += target	# all other files are part of the app bundle (see below)
+} else {
+    INSTALLS += target doctarget defstarget filestarget translation
+}
 win32:INSTALLS += dllstarget platformstarget
 
 
 
 
 # OS-specific options
-unix {
+unix:!macx {
        DEPENDPATH += src/linux
        INCLUDEPATH += src/linux
        HEADERS += src/linux/serialCOM.h \
@@ -268,6 +273,34 @@ unix {
                   src/linux/TimeM.cpp \
                   src/linux/J2534_API.cpp
        LIBS += -ldl -lrt
+}
+
+macx {
+       # NOTE: time measurement and J2534 library access are the same as on Linux, only the serial port access differs
+       DEPENDPATH += src/macos src/linux
+       INCLUDEPATH += src/macos src/linux
+       HEADERS += src/macos/serialCOM.h \
+                  src/linux/TimeM.h \
+                  src/linux/J2534_API.h
+       SOURCES += src/macos/serialCOM.cpp \
+                  src/linux/TimeM.cpp \
+                  src/linux/J2534_API.cpp
+       ICON = resources/icons/freessm/FreeSSM.icns
+       QMAKE_TARGET_BUNDLE_PREFIX = io.github.comer352l
+       # Data files are placed in the Resources directory of the app bundle:
+       bundle_files.files = $$PWD/background.png $$files($$PWD/LiberationSans*.ttf)
+       bundle_files.path = Contents/Resources
+       bundle_doc.files = $$files($$PWD/doc/*)
+       bundle_doc.path = Contents/Resources/doc
+       bundle_defs.files = $$files($$PWD/definitions/SSM1defs_*.xml) $$PWD/definitions/J2534libs.xml
+       bundle_defs.path = Contents/Resources/definitions
+       QMAKE_BUNDLE_DATA += bundle_files bundle_doc bundle_defs
+       # Translation files are compiled directly into the app bundle:
+       bundle_resources_dir = $$OUT_PWD/$${TARGET}.app/Contents/Resources
+       QMAKE_POST_LINK += mkdir -p $$shell_quote($$bundle_resources_dir) $$escape_expand(\\n\\t)
+       for(ts, TRANSLATIONS) {
+              QMAKE_POST_LINK += $$shell_quote($$[QT_INSTALL_BINS]/lrelease) -silent $$shell_quote($$PWD/$$ts) -qm $$shell_quote($$bundle_resources_dir/$$replace(ts, \\.ts$, .qm)) $$escape_expand(\\n\\t)
+       }
 }
 
 win32 {

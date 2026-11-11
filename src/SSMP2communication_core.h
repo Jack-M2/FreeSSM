@@ -26,7 +26,7 @@
 #ifdef __WIN32__
 	#include "windows\TimeM.h"
 	#define waitms(x) Sleep(x)
-#elif defined __linux__
+#elif defined __linux__ || defined __APPLE__
 	#include <unistd.h>
 	#include "linux/TimeM.h"
 	#define waitms(x) usleep(1000*x)

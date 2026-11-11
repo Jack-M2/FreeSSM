@@ -18,6 +18,8 @@
  */
 
 #include "libFSSM.h"
+#include <QCoreApplication>
+#include <QDir>
 
 
 bool libFSSM::raw2scaled(unsigned int rawValue, QString scaleformula, char precision, QString *scaledValueStr)
@@ -417,4 +419,17 @@ char libFSSM::calcchecksum(const char *message, const unsigned int nrofbytes)
 	for (unsigned int k=0; k<nrofbytes; k++)
 		cs += message[k];
 	return static_cast<char>(cs);
+}
+
+
+QString libFSSM::dataDirPath()
+{
+	QString appDirPath = QCoreApplication::applicationDirPath();
+#ifdef __APPLE__
+	// Inside an app bundle, the executable is located in Contents/MacOS and the data files in Contents/Resources:
+	QDir dir(appDirPath);
+	if ((dir.dirName() == "MacOS") && dir.cdUp() && (dir.dirName() == "Contents") && dir.cd("Resources"))
+		return dir.absolutePath();
+#endif
+	return appDirPath;
 }

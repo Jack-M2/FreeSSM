@@ -33,6 +33,11 @@
 	#include "linux/serialCOM.h"
 	#include "linux/TimeM.h"
 	#define waitms(x) usleep(1000*x)
+#elif defined __APPLE__
+	#include <unistd.h>
+	#include "macos/serialCOM.h"
+	#include "linux/TimeM.h"
+	#define waitms(x) usleep(1000*x)
 #else
 	#error "Operating system not supported !"
 #endif

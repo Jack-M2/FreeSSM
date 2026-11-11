@@ -23,6 +23,16 @@
 
 const QString CUcontent_MBsSWs::DefaultTimeValStr {"---"};
 
+
+static QString defaultMBSWlistsDirPath()
+{
+#ifdef __APPLE__
+	return QDir::homePath();	// NOTE: files must not be saved inside the app bundle
+#else
+	return QCoreApplication::applicationDirPath();
+#endif
+}
+
 CUcontent_MBsSWs::CUcontent_MBsSWs(MBSWsettings_dt settings, QWidget *parent) : QWidget(parent)
 {
 	_SSMPdev = NULL;
@@ -853,7 +863,7 @@ bool CUcontent_MBsSWs::saveMBsSWs(QString filename)
 	{
 		// Select file for saving
 		filename = QFileDialog::getSaveFileName(this, tr("Save MB/SW List"),
-							QCoreApplication::applicationDirPath(),
+							defaultMBSWlistsDirPath(),
 							tr("FreeSSM MB/SW list files") + " (*.list)(*.list)");
 		if (!filename.size())
 			return false;
@@ -920,8 +930,8 @@ bool CUcontent_MBsSWs::loadMBsSWs(QString filename)
 	if (!filename.size())
 	{
 		// Select file to load:
-		QString default_filename = QCoreApplication::applicationDirPath();
-		QDir dir(QCoreApplication::applicationDirPath());
+		QString default_filename = defaultMBSWlistsDirPath();
+		QDir dir(default_filename);
 		QStringList filenames = dir.entryList(QStringList("*.list"), QDir::Files | QDir::Readable, QDir::Time);
 		if (filenames.size())
 			default_filename += QDir::separator() + filenames.at(0);
